@@ -1,45 +1,125 @@
-const c = document.getElementById('canvas').getContext('2d')
+document.addEventListener("keydown", keyHandler, false);
+const canvas = document.getElementById("game-area");
+const statusDiv = document.getElementById("status");
+const startBtn = document.getElementById("startBtn");
+const highscoreDiv = document.getElementById("highscore");
+const scoreDiv = document.getElementById("ScoreDiv");
+const context = canvas.getContext("2d");
+const gridSize = 40;
+const blockWidth = canvas.width / gridSize;
+const blockHeight = canvas.height / gridSize;
 
-c.fillStyle = 'black'
-c.strokeRect(0, 0, 500, 400)
+let food = [];
+let snake = [];
+let direction = "right";
+const snakeStartLength = 5;
+let highscore = 0;
+let score = 0;
 
-c.fillStyle = ''
-c.fillRect(10, 10, 480, 380)
-
-c.fillStyle = 'orange'
-c.font = 'small-caps bold 24px sans-serif'
-c.textAlign = 'center'
-c.fillText('Hello code hackerz!', 250, 200)
-
-var num = 30;
-var w = c.canvas.width;
-var h = c.canvas.height;
-
-for (var i = 0; i < num; i = i + 1) {
-  var x = i * w / (num - 1);
-  var y = i * h / (num - 1);
-  c.strokeStyle = randomRGBA();
-  drawLine(0, y, x, h);
-  c.strokeStyle = randomRGBA();
-  drawLine(x, 0, w, y);
+function keyHandler(e) {
+  if (e.key === "ArrowRight" && direction !== "left") {
+    direction = "right";
+  } else if (e.key === "ArrowLeft" && direction !== "right") {
+    direction = "left";
+  } else if (e.key === "ArrowDown" && direction !== "up") {
+    direction = "down";
+  } else if (e.key === "ArrowUp" && direction !== "down") {
+    direction = "up";
+  }
 }
 
-function randomRGBA() {
-  var r = randInt(255);
-  var g = randInt(255);
-  var b = randInt(255);
-  var a = Math.random();
-  var rgba = [r,g,b,a].join(",");
-  return "rgba(" + rgba + ")";
-}
-function randInt(limit) {
-  var x = Math.random() * limit;
-  return Math.floor(x);
-}
-function drawLine(x1, y1, x2, y2) {
-  c.beginPath();
-  c.moveTo(x1, y1);
-  c.lineTo(x2, y2);
-  c.stroke();
+function start() {
+  startBtn.disabled = true;
+  statusDiv.innerHTML = "";
+  score = 0;
+  scoreDiv.innerHTML = "Score: " + score;
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  score++;
+
+  snake.length = 0;
+  for (let i = 0; i < snakeStartLength; i++) {
+    snake.push({ x: 10 - i, y: 1 });
+  }
+
+  createfood();
+
+  drawSnake();
+  direction = "right";
+  setTimeout(tick, 100);
 }
 
+function drawBlock(block, color) {
+  // block has an x and y coordinate
+  context.fillStyle = color;
+  context.fillRect(block.x * 10, block.y * 10, 10, 10);
+}
+
+function drawSnake() {
+  for (let i = 0; i < snake.length; i++) {
+    drawBlock(snake[i], "aqua");
+  }
+}
+
+function moveSnake() {
+  console.log("Move snake:", direction);
+  let newHead = {};
+  if (direction === "right") {
+    newHead = { x: snake[0].x + 1, y: snake[0].y };
+  } else if (direction === "left") {
+    newHead = { x: snake[0].x - 1, y: snake[0].y };
+  } else if (direction === "down") {
+    newHead = { x: snake[0].x, y: snake[0].y + 1 };
+  } else if (direction === "up") {
+    newHead = { x: snake[0].x, y: snake[0].y - 1 };
+  }
+
+  snake.unshift(newHead);
+  if (newHead.x === food.x && newHead.y === food.y && setTimeout(tick + 10)) {
+    createfood();
+    score++;
+    if (score > highscore) {
+      highscore = score;
+    }
+  } else {
+    snake.pop();
+  }
+}
+
+function tick() {
+  moveSnake();
+
+  let con = collision();
+  if (con) {
+    statusDiv.innerHTML = "Game Over!";
+    startBtn.disabled = false;
+  } else {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    drawSnake();
+    drawfood();
+    setTimeout(tick, 100);
+  }
+}
+
+function collision() {
+  if (snake[0].x == -1 || snake[0].x == 40) {
+    return true;
+  }
+  if (snake[0].y == -1 || snake[0].y == 40) {
+    return true;
+  }
+  for (i = 1; i < snake.length; i++) {
+    if (snake[i].x === snake[0].x && snake[0].y === snake[i].y) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function drawfood() {
+  drawBlock(food, "aqua");
+}
+
+function createfood() {
+  food.x = Math.floor(Math.random() * 40);
+  food.y = Math.floor(Math.random() * 40);
+}

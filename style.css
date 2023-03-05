@@ -1,5 +1,26 @@
 body {
   display: grid;
   place-content: center;
-  background: rgb(1, 255, 242);
+  text-align: center;
+  background: navy;
+}
+
+#game-area {
+  border-style: solid;
+  border-width: 12px;
+  border-color: aqua;
+  background: blue;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.left {
+  text-align: left;
+}
+
+.right {
+  text-align: right;
 }
