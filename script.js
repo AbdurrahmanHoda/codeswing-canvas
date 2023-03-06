@@ -3,7 +3,7 @@ const canvas = document.getElementById("game-area");
 const statusDiv = document.getElementById("status");
 const startBtn = document.getElementById("startBtn");
 const highscoreDiv = document.getElementById("highscore");
-const scoreDiv = document.getElementById("ScoreDiv");
+const scoreDiv = document.getElementById("scoreDiv");
 const context = canvas.getContext("2d");
 const gridSize = 40;
 const blockWidth = canvas.width / gridSize;
@@ -56,7 +56,8 @@ function drawBlock(block, color) {
 
 function drawSnake() {
   for (let i = 0; i < snake.length; i++) {
-    drawBlock(snake[i], "aqua");
+    let seven = 240 + (i * 10);
+    drawBlock(snake[i], "hsl( " + seven  + " deg 100% 50%)");
   }
 }
 
@@ -113,6 +114,7 @@ function collision() {
     }
   }
   return false;
+  score++;
 }
 
 function drawfood() {
